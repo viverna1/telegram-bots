@@ -1,0 +1,8 @@
+{
+    "POLLINATIONS_URL": "https://text.pollinations.ai/openai",
+    "POLLINATIONS_MODEL": "openai",
+    "LLM_TEMPERATURE": 0.85,
+    "LLM_MAX_TOKENS": 150,
+    "LLM_TIMEOUT": 60,
+    "LLM_QUEUE_MAXSIZE": 19
+}

@@ -1,0 +1,21 @@
+[
+  {
+    "type": "none",
+    "name": "test"
+  },
+  {
+    "type": "ollama",
+    "name": "qwen2.5:7b",
+    "model": "qwen2.5:7b"
+  },
+  {
+    "type": "ollama",
+    "name": "qwen2.5-coder:1.5b-base",
+    "model": "qwen2.5-coder:1.5b-base"
+  },
+  {
+    "type": "http",
+    "name": "local",
+    "url": "http://127.0.0.1:5000/api/ask"
+  }
+]
