@@ -5,47 +5,47 @@ from core.infrastructure.chat_repository import ChatRepository
 
 class ChatService:
     def __init__(self, chat_repository: ChatRepository) -> None:
-        self._chat_repository = chat_repository
+        self._repo = chat_repository
 
     def get_chat(self, chat_id: int) -> Chat | None:
-        return self._chat_repository.get(chat_id)
+        return self._repo.get(chat_id)
 
     def get_all_chats(self) -> list[Chat]:
-        return self._chat_repository.get_all()
+        return self._repo.get_all()
 
     def has_chat(self, chat_id: int) -> bool:
-        return self._chat_repository.has(chat_id)
+        return self._repo.has(chat_id)
 
     def create_chat(self, chat: Chat) -> Chat:
         if self.has_chat(chat.id):
             return self.update_chat(chat)
         else:
-            return self._chat_repository.add(chat)
+            return self._repo.add(chat)
 
-    def upsert_chat_users(self, chat: Chat) -> Chat:
+    def upsert_chat_users(self, chat: Chat) -> None:
         existing_chat = self.get_chat(chat.id)
-    
         if existing_chat is None:
-            return self.create_chat(chat)
-    
+            self.create_chat(chat)
+            return
+            
+        if not existing_chat.is_private() or chat.users is None:
+            return
+
+
         for user in chat.users:
-            self.add_member(existing_chat, user, save=False)
-    
-        self._chat_repository._save()
-        return existing_chat
-    
-    def add_member(self, chat: Chat, new_member: User, save: bool = True) -> Chat:
+            self.add_member(existing_chat, user)
+
+        self._repo.update(existing_chat)
+
+    def add_member(self, chat: Chat, new_member: User) -> None:
+        if chat.users is None:
+            return
         existing_ids = {u.id for u in chat.users}
         if new_member.id not in existing_ids:
             chat.users.append(new_member)
-    
-        if save:
-            self._chat_repository._save()
-        return chat
-        
 
     def update_chat(self, chat: Chat) -> Chat:
-        return self._chat_repository.update(chat)
+        return self._repo.update(chat)
 
     def delete_chat(self, chat_id: int) -> None:
-        self._chat_repository.delete(chat_id)
+        self._repo.delete(chat_id)

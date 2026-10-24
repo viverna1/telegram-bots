@@ -1,6 +1,6 @@
 import pytest
 
-from core.domain.chat import Chat
+from core.domain.chat import Chat, ChatType
 from core.domain.user import User
 
 
@@ -20,18 +20,18 @@ def user(user_raw) -> User:
 
 
 def test_from_dict(user_raw, user):
-    chat = Chat.from_dict({"id": 1, "users": [user_raw]})
+    chat = Chat.from_dict({"id": 1, "type": ChatType.PRIVATE, "users": [user_raw]})
 
     assert chat.id == 1
     assert chat.users == [user]
 
 
 def test_to_dict(user, user_raw):
-    chat = Chat(id=1, users=[user])
+    chat = Chat(id=1, type=ChatType.PRIVATE, users=[user])
 
-    assert chat.to_dict() == {"id": 1, "users": [user_raw]}
+    assert chat.to_dict() == {"id": 1, "type": ChatType.PRIVATE, "users": [user_raw]}
 
 
 def test_chat_roundtrip(user_raw):
-    data = {"id": 1, "users": [user_raw]}
+    data = {"id": 1, "type": ChatType.PRIVATE, "users": [user_raw]}
     assert Chat.from_dict(data).to_dict() == data

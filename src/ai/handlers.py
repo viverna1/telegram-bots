@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from core.presentation.handlers import base_message_handler, base_start
-from core.shared.message_log import log
+from core.shared.message_log import message_log
 
 from .llm import LLM
 
@@ -21,10 +21,10 @@ async def ask(message: types.Message, llm: LLM):
     
     if message.text is None:
         return
-    log(message)
+    message_log(message)
 
     answer = await llm.ask(message.text)
-    log(message, sender="bot")
+    message_log(message, sender="bot")
 
     print(message)
 
@@ -38,7 +38,7 @@ async def ask(message: types.Message, llm: LLM):
 async def business_message_handler(message: Message, llm: LLM):
     if message.text is None or message.from_user is None:
         return
-    log(message)
+    message_log(message)
 
     print(message)
 
@@ -46,7 +46,7 @@ async def business_message_handler(message: Message, llm: LLM):
         return
 
     answer = await llm.ask(message.text)
-    log(message, sender="bot")
+    message_log(message, sender="bot")
 
     if answer is None or answer == LLM.SKIP_TOKEN:
         return

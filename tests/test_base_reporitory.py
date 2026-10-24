@@ -28,7 +28,7 @@ def fake_repo():
 
 @pytest.fixture
 def base_repo(fake_repo):
-    return BaseRepository(fake_repo)
+    return BaseRepository(fake_repo, RepoItem)
 
 
 # ==================== Tests ====================

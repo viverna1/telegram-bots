@@ -2,7 +2,7 @@ from aiogram import Bot, Router
 from aiogram.types import Message
 
 from core.root import chat_service, user_service
-from core.shared.message_log import log
+from core.shared.message_log import message_log
 
 from .utils.aio_to_chat import aio_to_chat
 from .utils.aio_to_user import aio_to_user
@@ -24,18 +24,15 @@ def base_start(message: Message):
             user_service.create_user(app_user)
 
 
-
 def base_message_handler(message: Message):
     chat = aio_to_chat(message)
     chat_service.upsert_chat_users(chat)
-    
-    if message.text:
-        log(message, chat_service=chat_service)
+
+    message_log(message, chat_service=chat_service)
 
 
 def base_business_message_handler(message: Message):
     chat = aio_to_chat(message)
     chat_service.upsert_chat_users(chat)
-    
-    if message.text:
-        log(message, chat_service=chat_service)
+
+    message_log(message, chat_service=chat_service)

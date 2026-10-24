@@ -18,11 +18,11 @@ async def cmd_start(message: Message):
 
 
 @router.message()
-async def echo(message: Message):
+async def message_handler(message: Message):
     base_message_handler(message)
 
     if message.text:
-        await message.answer(message.text)
+        await message.answer(f"[{message.text}]")
 
 
 @router.business_message()
@@ -30,4 +30,12 @@ async def business_message_handler(message: Message):
     base_business_message_handler(message)
     
     if message.text:
-        await message.answer(message.text)
+        await message.answer(f"[{message.text}]")
+
+
+@router.channel_post()
+async def channel_post_handler(channel_post: Message):
+    base_message_handler(channel_post)
+
+    if channel_post.text:
+        await channel_post.answer(f"[{channel_post.text}]")
