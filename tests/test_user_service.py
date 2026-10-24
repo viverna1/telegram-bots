@@ -1,11 +1,11 @@
 from datetime import datetime
 
 import pytest
-from pytest_mock import MockerFixture
 
 from core.application.user_service import UserService
 from core.domain.user import User
 from core.infrastructure.user_repository import UserRepository
+from tests.fake_repository import FakeRepository
 
 
 def create_user(user_id):
@@ -18,15 +18,13 @@ def create_user(user_id):
 
 
 @pytest.fixture
-def mock_user_repository(mocker: MockerFixture):
-    mock_load = mocker.patch.object(UserRepository, "_load")
-    mock_save = mocker.patch.object(UserRepository, "_save")
-    return mock_load, mock_save
+def fake_repo():
+    return FakeRepository()
 
 
 @pytest.fixture
-def user_repository(mock_user_repository):
-    return UserRepository("")
+def user_repository(fake_repo):
+    return UserRepository(fake_repo)
 
 
 @pytest.fixture
@@ -85,4 +83,3 @@ def test_delete_user(user_service: UserService):
     user_service.delete_user(1)
 
     assert user_service.get_all_users() == []
-

@@ -1,0 +1,9 @@
+from abc import ABC, abstractmethod
+from typing import Any
+
+
+class Repository(ABC):
+    @abstractmethod
+    def exists(self) -> bool: ...
+    def load(self) -> list[Any]: ...
+    def save(self, data: list[Any]) -> None: ...

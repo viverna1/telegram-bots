@@ -2,7 +2,7 @@ from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from core.presentation.handlers import base_start
+from core.presentation.handlers import base_message_handler, base_start
 from core.shared.message_log import log
 
 from .llm import LLM
@@ -17,13 +17,17 @@ async def cmd_start(message: Message):
 
 @router.message()
 async def ask(message: types.Message, llm: LLM):
+    # base_message_handler(message)
+    
     if message.text is None:
         return
     log(message)
 
     answer = await llm.ask(message.text)
-    print(f"[bot] -> [{message.from_user.username}]: {answer}")
-    
+    log(message, sender="bot")
+
+    print(message)
+
     if answer is None or answer == LLM.SKIP_TOKEN:
         return
 
@@ -42,11 +46,9 @@ async def business_message_handler(message: Message, llm: LLM):
         return
 
     answer = await llm.ask(message.text)
-    log(message, sender=llm.name)
-    
+    log(message, sender="bot")
+
     if answer is None or answer == LLM.SKIP_TOKEN:
         return
 
     await message.answer(answer)
-
-    
