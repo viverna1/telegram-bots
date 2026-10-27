@@ -1,0 +1,20 @@
+{
+  "tags": "date:1w -rating:s score:>200 -animated order:favcount -human",
+  "sent-posts": [
+    6799793,
+    6795084,
+    6801649,
+    6802716,
+    6795649,
+    6796657,
+    6807266,
+    6799784,
+    6795077
+  ],
+  "last_post_id": 6798491,
+  "last_update": "2026-10-22T06:59:53.477552",
+  "headers": {
+    "User-Agent": "@hive2bot/1.0 (by v-v4)"
+  },
+  "limit": 30
+}

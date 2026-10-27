@@ -1,73 +1,56 @@
-import json
-import os
-from datetime import datetime
+import asyncio
+import logging
+import sys
+from pathlib import Path
 
-import requests
-from dotenv import load_dotenv
+from aiogram import Bot as AioBot
+from aiogram import html
 
-load_dotenv()
-TELEGRAM_BOT_TOKEN = os.getenv("BOT_TOKEN")
-STATE_FILE = "e621_state.json"
+from core.presentation.bot import Bot
 
+from .config_repository import ConfigRepository
+from .e621_posts import E621Posts
+from .handlers import router
 
-def load_state():
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r") as f:
-            return json.load(f)
-    return {"last_post_id": 0}
+CONFIG_PATH = Path(__file__).parent / "config.json"
 
-
-def save_state(last_id):
-    with open(STATE_FILE, "w") as f:
-        state = {"last_post_id": last_id, "last_update": datetime.now().isoformat()}
-        json.dump(state, f, indent=2)
+log = logging.getLogger(__name__)
 
 
-def get_new_posts(limit=10):
-    # Загружаем последний известный ID
-    state = load_state()
-    last_id = state.get("last_post_id", 0)
+async def send_post(
+    bot: AioBot,
+    chat_id: int,
+    e621_posts: E621Posts,
+) -> None:
+    try:
+        post = await e621_posts.get_good_post()
+        if post is None:
+            log.info("no new post")
+        else:
+            link = e621_posts.get_link(post)
+            await bot.send_message(chat_id, html.link("post", link))
+            e621_posts.mark_post_as_sent(post["id"])
+            log.info("sent post id=%s", post["id"])
+    except asyncio.CancelledError:
+        log.info("send_post_loop cancelled")
+        raise
+    except Exception:
+        log.exception("send_post_loop iteration failed")
 
-    url = "https://e621.net/posts.json"
 
-    params = {
-        "limit": limit,
-        "order": "id",  # Сортировка от старых к новым
-    }
+async def main() -> None:
+    config_repository = ConfigRepository(str(CONFIG_PATH))
+    e621_posts = E621Posts(config_repository)
 
-    # Если есть последний ID, ищем только посты новее его
-    if last_id > 0:
-        params["tags"] = f"id:>{last_id}"
-    else:
-        print("Первый запуск - загружаем последние посты")
+    bot = Bot(router, on_shutdown=[e621_posts.aclose], e621_posts=e621_posts)
+    # bot.run()
 
-    headers = {"User-Agent": "e621TelegramBot/1.0 (by Covi)"}
-
-    response = requests.get(url, params=params, headers=headers)
-    response.raise_for_status()
-
-    data = response.json()
-    posts = data.get("posts", [])
-
-    # Находим максимальный ID среди новых постов
-    if posts:
-        max_id = max(post.get("id", 0) for post in posts)
-        save_state(max_id)
-
-        print("Последний Id:", max_id)
-    else:
-        pass
-
-    return posts
+    await send_post(bot._bot, -1003793977933, e621_posts)
 
 
 if __name__ == "__main__":
-    new_posts = get_new_posts(limit=10)
-
-    if new_posts:
-        print(f"\nНовые посты ({len(new_posts)} шт.):")
-        for i, post in enumerate(new_posts, 1):
-            print(f"{i}. ID: {post.get('id')}")
-
-    else:
-        print("Новых постов нет.")
+    logging.basicConfig(level=logging.INFO)
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

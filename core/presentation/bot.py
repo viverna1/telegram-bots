@@ -1,5 +1,6 @@
 import asyncio
 import os
+from typing import Callable
 
 from aiogram import Bot as AiogramBot
 from aiogram import Dispatcher, Router
@@ -9,7 +10,7 @@ from dotenv import load_dotenv
 
 
 class Bot:
-    def __init__(self, router: Router, token: str | None = None, **workflow_data):
+    def __init__(self, router: Router, token: str | None = None, on_shutdown: list[Callable] | None = None, **workflow_data):
         load_dotenv()
         token = token or os.getenv("BOT_TOKEN")
         if not token:
@@ -19,13 +20,19 @@ class Bot:
             token=token,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         )
-        self._dispatcher = Dispatcher()
-        self._dispatcher.include_router(router)
-        self._dispatcher.workflow_data.update(workflow_data)
+        self._dp = Dispatcher()
+        self._dp.include_router(router)
+        if on_shutdown:
+            for call in on_shutdown:
+                self._dp.shutdown.register(call)
+        self._dp.workflow_data.update(workflow_data)
 
     def run(self) -> None:
         asyncio.run(self._run())
 
     async def _run(self) -> None:
         await self._bot.delete_webhook(drop_pending_updates=True)
-        await self._dispatcher.start_polling(self._bot)
+        try:
+            await self._dp.start_polling(self._bot)
+        finally:
+            await self._bot.session.close()

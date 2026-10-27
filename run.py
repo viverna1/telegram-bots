@@ -1,4 +1,6 @@
+import asyncio
 import importlib
+import inspect
 import logging
 import sys
 from pathlib import Path
@@ -39,10 +41,16 @@ def print_usage() -> None:
     print("\n".join(f"{i + 1}: {bot}" for i, bot in enumerate(BOTS)))
 
 
-def main():
+def run_module_main(module) -> None:
+    result = module.main()
+    if inspect.isawaitable(result):
+        asyncio.run(result)
+
+
+def main() -> None:
     module_path = parse_args()
     module = importlib.import_module(module_path)
-    module.main()
+    run_module_main(module)
 
 
 if __name__ == "__main__":

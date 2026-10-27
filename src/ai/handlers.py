@@ -12,23 +12,20 @@ router = Router()
 
 @router.message(Command("start"))
 async def cmd_start(message: Message):
-    await base_start(message)
+    base_start(message)
 
 
 @router.message()
 async def ask(message: types.Message, llm: LLM):
-    # base_message_handler(message)
+    base_message_handler(message)
     
     if message.text is None:
         return
-    message_log(message)
 
-    answer = await llm.ask(message.text)
+    answer = await llm.ask(message.chat.id, message.text)
     message_log(message, sender="bot")
 
-    print(message)
-
-    if answer is None or answer == LLM.SKIP_TOKEN:
+    if answer is None:
         return
 
     await message.answer(answer)
@@ -40,15 +37,13 @@ async def business_message_handler(message: Message, llm: LLM):
         return
     message_log(message)
 
-    print(message)
-
     if message.from_user.id != message.chat.id:
         return
 
-    answer = await llm.ask(message.text)
+    answer = await llm.ask(message.chat.id, message.text)
     message_log(message, sender="bot")
 
-    if answer is None or answer == LLM.SKIP_TOKEN:
+    if answer is None:
         return
 
     await message.answer(answer)

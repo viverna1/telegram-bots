@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import asdict, dataclass
 from typing import Self
 
@@ -8,7 +8,6 @@ class RepoItem(ABC):
     id: int
 
     @classmethod
-    @abstractmethod
     def from_dict(cls, params: dict) -> Self:
         data = dict(params)
         return cls(**data)
