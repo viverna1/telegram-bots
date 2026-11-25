@@ -1,6 +1,5 @@
-import asyncio
 import os
-from typing import Callable
+from collections.abc import Callable
 
 from aiogram import Bot as AiogramBot
 from aiogram import Dispatcher, Router
@@ -16,7 +15,7 @@ class Bot:
         if not token:
             raise RuntimeError("BOT_TOKEN не задан")
 
-        self._bot = AiogramBot(
+        self.bot = AiogramBot(
             token=token,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         )
@@ -27,12 +26,12 @@ class Bot:
                 self._dp.shutdown.register(call)
         self._dp.workflow_data.update(workflow_data)
 
-    def run(self) -> None:
-        asyncio.run(self._run())
+    async def run(self) -> None:
+        await self._run()
 
     async def _run(self) -> None:
-        await self._bot.delete_webhook(drop_pending_updates=True)
+        await self.bot.delete_webhook(drop_pending_updates=True)
         try:
-            await self._dp.start_polling(self._bot)
+            await self._dp.start_polling(self.bot)
         finally:
-            await self._bot.session.close()
+            await self.bot.session.close()

@@ -1,3 +1,5 @@
+import asyncio
+
 from core.presentation.bot import Bot
 
 from .handlers import router
@@ -5,10 +7,10 @@ from .handlers import router
 # from .handlers_clean import router
 
 
-def main():
+async def main():
     bot = Bot(router)
-    bot.run()
+    await bot.run()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

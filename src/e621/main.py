@@ -43,9 +43,9 @@ async def main() -> None:
     e621_posts = E621Posts(config_repository)
 
     bot = Bot(router, on_shutdown=[e621_posts.aclose], e621_posts=e621_posts)
-    # bot.run()
+    # await bot.run()
 
-    await send_post(bot._bot, -1003793977933, e621_posts)
+    await send_post(bot.bot, -1003793977933, e621_posts)
 
 
 if __name__ == "__main__":

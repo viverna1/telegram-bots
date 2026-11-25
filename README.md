@@ -9,18 +9,21 @@ py run.py <bot_number>  # запустить бота с номером <bot_num
 
 В src должен быть `main.py`:
 ```python
+import asyncio
+
 from core.presentation.bot import Bot
 
 from .handlers import router
 
 
-def main():
+async def main():
     bot = Bot(router)
-    bot.run()
+    await bot.run()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
+
 ```
 
 В `handlers.py`:

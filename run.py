@@ -55,5 +55,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     setup_logging()
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     main()
